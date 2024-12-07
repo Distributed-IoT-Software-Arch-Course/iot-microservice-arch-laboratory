@@ -1,4 +1,4 @@
-# Microservices IoT Application with Docker - Playground
+# Microservices IoT Application with Docker - Laboratory
 
 In this playground, we are going to build and deploy a simple IoT application using Docker containers.
 The main concept is to create a simple IoT Inventory system with a RESTful HTTP API to manage **only** device telemetry data 
