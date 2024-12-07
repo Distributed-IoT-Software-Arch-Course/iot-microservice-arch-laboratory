@@ -1,18 +1,19 @@
 # Microservices IoT Application with Docker - Playground
 
 In this playground, we are going to build and deploy a simple IoT application using Docker containers.
-The main concept is to create a simple IoT Inventory system with a RESTful HTTP API to manage locations and devices
+The main concept is to create a simple IoT Inventory system with a RESTful HTTP API to manage **only** device telemetry data 
+(different from the Playground example where we manage locations and devices).
 integrated with an MQTT Broker to receive telemetry data from IoT devices and register them in the inventory.
-Futhermore, we are going to build a simple Web Interface to interact with the inventory system and display the locations and devices.
+Furthermore, we are going to build a simple Web Interface to interact with the inventory system and display device telemetry data.
 
-![schema_v2.jpg](images/schema_v2.jpg)
+![schema_telemetry_data.jpg](images/schema_telemetry_data.jpg)
 
 The main components of the system are:
 
 - **MQTT Broker**: The MQTT broker is used to receive telemetry data from IoT devices and publish them to the subscribers.
-- **IoT Inventory**: The HTTP API is used to manage locations and devices in the inventory.
+- **IoT Inventory**: The HTTP API is used to manage device telemetry data and interact with the MQTT Data Fetcher.
 - **MQTT Data Fetcher**: MQTT to HTTP Inventory Integration: The MQTT Data Fetcher is used to subscribe to an MQTT topic and process incoming messages to interact with the Inventory API.
-- **Web UI**: The Web Interface is used to interact with the inventory system and display the locations and devices.
+- **Web UI**: The Web Interface is used to interact with the inventory system and display the device telemetry data.
 
 The outline of the playground is the following:
 
