@@ -37,8 +37,7 @@ class WebServer:
         self.app = Flask(__name__, template_folder=template_dir)
 
         # Add URL rules to the Flask app mapping the URL to the function
-        self.app.add_url_rule('/locations', 'locations', self.locations)
-        self.app.add_url_rule('/location/<string:location_id>/devices', 'devices', self.devices)
+        self.app.add_url_rule('/device/<string:device_id>/telemetry', 'telemetry', self.telemetry)
 
     def read_configuration_file(self):
         """ Read Configuration File for the Web Server
@@ -56,17 +55,18 @@ class WebServer:
 
         print("Read Configuration from file ({}): {}".format(self.config_file, self.configuration_dict))
 
-    def locations(self):
-        """ Get all locations and render the locations.html template"""
-        location_list = self.http_get_location_list()
-        return render_template('locations.html', locations=location_list)
+    def telemetry(self, device_id):
+        """ Get telemetry data for a specific device and render the telemetry.html template"""
+        telemetry_data = self.http_get_device_telemetry(device_id)
+        print(telemetry_data)
+        return render_template('telemetry.html', telemetry_data=telemetry_data, device_id=device_id)
 
-    def http_get_location_list(self):
+    def http_get_device_telemetry(self, device_id):
         """ Get all locations from the remote server over HTTP"""
 
         # Get the base URL from the configuration
         base_http_url = self.configuration_dict['web']['api_base_url']
-        target_url = f'{base_http_url}/location'
+        target_url = f'{base_http_url}/device/{device_id}/telemetry'
 
         # Send the GET request
         response_string = requests.get(target_url)

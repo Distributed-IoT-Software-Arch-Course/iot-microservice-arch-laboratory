@@ -44,37 +44,26 @@ def on_message(client, userdata, msg):
     if mqtt.topic_matches_sub(mqtt_topic, msg.topic):
         try:
 
-            payload = json.loads(msg.payload.decode())
+            payload_dict = json.loads(msg.payload.decode())
             device_id = msg.topic.split('/')[1]
 
             # Check if the device exists in the inventory
-            check_device_url = f"{api_url}/{device_id}"
-            check_device_response = requests.get(check_device_url)
+            telemetry_device_url = f"{api_url}/{device_id}/telemetry"
 
-            print(f'Checking Device availability {check_device_url} -> Response Code: {check_device_response.status_code}')
+            print(f'Telemetry for Device: {device_id} Sending HTTP POST Request to: {telemetry_device_url}')
 
-            if check_device_response.status_code == 404:
+            device_telemetry_payload = {
+                "data_type": payload_dict["type"],
+                "value": payload_dict["value"],
+                "timestamp": payload_dict["timestamp"]
+            }
 
-                print(f'New Device Detected: {device_id} Sending HTTP POST Request to: {api_url}')
+            create_device_response = requests.post(telemetry_device_url, json=device_telemetry_payload)
 
-                # If the device does not exist, create it
-                create_device_url = api_url
-                create_device_payload = {
-                    "uuid": device_id,
-                    "name": f"Demo Temperature Sensor {device_id}",
-                    "device_type": "device.temperature",
-                    "manufacturer": "ACME Inc",
-                    "software_version": "0.0.1beta",
-                    "latitude": 48.312321,
-                    "longitude": 10.433423211
-                }
-
-                create_device_response = requests.post(create_device_url, json=create_device_payload)
-
-                if create_device_response.status_code == 201:
-                    print(f"Device {device_id} created successfully.")
-                else:
-                    print(f"Failed to create device {device_id}. Status code: {create_device_response.status_code}")
+            if create_device_response.status_code == 201:
+                print(f"Device Telemetry {device_id} registered successfully.")
+            else:
+                print(f"Failed to register telemetry {device_id}. Status code: {create_device_response.status_code} Response: {create_device_response.text}")
 
         except Exception as e:
             print(f"Error processing MQTT message: {str(e)}")

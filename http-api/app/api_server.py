@@ -1,17 +1,12 @@
 from flask import Flask
-from flask_restful import Resource, Api, reqparse
-from resources.device_resource import DeviceResource
-from resources.devices_resource import DevicesResource
-from resources.locations_resource import LocationsResource
-from resources.location_resource import LocationResource
+from flask_restful import Api
 from persistence.data_manager import DataManager
-from model.location_model import LocationModel
-from model.device_model import DeviceModel
+from resources.telemetry_data_resource import TelemetryDataResource
 import yaml
 
 # Default Values
 CONF_FILE_PATH = "conf.yaml"
-DEFAULT_ENDPOINT_PREFIX = "/api/iot/inventory"
+DEFAULT_ENDPOINT_PREFIX = "/api/v1/iot/inventory"
 
 # Default Configuration Dictionary
 configuration_dict = {
@@ -43,50 +38,13 @@ print("Starting HTTP RESTful API Server ...")
 
 data_manager = DataManager()
 
-api.add_resource(LocationsResource, configuration_dict['rest']['api_prefix'] + '/location',
-                 resource_class_kwargs={'data_manager': data_manager},
-                 endpoint="locations",
-                 methods=['GET', 'POST'])
-
-api.add_resource(LocationResource, configuration_dict['rest']['api_prefix'] + '/location/<string:location_id>',
-                 resource_class_kwargs={'data_manager': data_manager},
-                 endpoint='location',
-                 methods=['GET', 'PUT', 'DELETE'])
-
-api.add_resource(DevicesResource, configuration_dict['rest']['api_prefix'] + '/location/<string:location_id>/device',
-                 resource_class_kwargs={'data_manager': data_manager},
-                 endpoint="devices",
-                 methods=['GET', 'POST'])
-
-api.add_resource(DeviceResource, configuration_dict['rest']['api_prefix'] + '/location/<string:location_id>/device/<string:device_id>',
-                resource_class_kwargs={'data_manager': data_manager},
-                 endpoint='device',
-                 methods=['GET', 'PUT', 'DELETE'])
+# Add Resources and Endpoints
+api.add_resource(TelemetryDataResource, configuration_dict['rest']['api_prefix'] + '/device/<string:device_id>/telemetry',
+                      resource_class_kwargs={'data_manager': data_manager},
+                      endpoint="device_telemetry_data",
+                      methods=['GET', 'POST'])
 
 if __name__ == '__main__':
 
-    # Create Demo Data
-
-    # Demo Location
-    demo_location = LocationModel("l0001",
-                                  "TestBuilding",
-                                  48.312321,
-                                  10.433423211)
-
-    # Add New Location
-    data_manager.add_location(demo_location)
-
-    # Demo Device for the previous location
-    demo_device = DeviceModel("d0001",
-                              "demo-device",
-                              demo_location.uuid,
-                              DeviceModel.DEVICE_TYPE_DEFAULT,
-                              "ACME Inc",
-                              "0.0.1beta",
-                              48.312321,
-                              10.433423211)
-
-    # Add New Device
-    data_manager.add_device(demo_location.uuid, demo_device)
-
+    # Run the Flask Application
     app.run(host=configuration_dict['rest']['host'], port=configuration_dict['rest']['port'])  # run our Flask app
